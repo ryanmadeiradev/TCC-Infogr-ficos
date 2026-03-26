@@ -5,7 +5,7 @@ const sqlite3 = require('sqlite3').verbose();
 const bcrypt = require('bcrypt');
 const multer = require('multer');
 const fs = require('fs');
-
+const dir = './uploads';
 const app = express();
 const PORTA = process.env.PORT || 3000;
 
@@ -31,6 +31,11 @@ app.use(session({
     saveUninitialized: true,
     cookie: { secure: false }
 }));
+
+if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+    console.log("Pasta uploads criada com sucesso!");
+}
 
 function checarAutenticacao(req, res, next) {
     if (req.session.usuario) return next();
