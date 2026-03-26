@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard do Professor</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <a href="/logout" style="position: absolute; top: 10px; right: 20px;">Sair</a>
+
+    <div class="container-principal">
+        <h1>Crie seu Infográfico Interativo</h1>
+        
+        <div class="form-group" style="text-align: left; max-width: 500px; margin: 20px auto;">
+            <label for="tituloInfografico">1. Dê um nome para o infográfico:</label>
+            <input type="text" id="tituloInfografico" class="form-input" placeholder="Ex: Fases da Lua">
+        </div>
+
+        <div class="form-group" style="text-align: left; max-width: 500px; margin: 20px auto;">
+            <label for="carregadorImagem">2. Escolha uma imagem:</label>
+            <input type="file" id="carregadorImagem" accept="image/*">
+        </div>
+        
+        <h3 id="instrucoes" style="display: none;">3. Clique na imagem para adicionar os pontos</h3>
+
+        <div id="containerInfografico" class="container-infografico"></div>
+
+        <button id="botaoSalvar" class="btn-submit" style="margin-top: 20px; display: none;">
+            Salvar
+        </button>
+    </div>
+
+    <hr style="margin: 40px 0; border: 1px solid #eee;">
+
+    <div class="container-principal" style="margin-top: 0;">
+        <h2>Meus Infográficos Criados</h2>
+        <div id="listaInfograficos" class="lista-infograficos">
+            <p>Carregando seus infográficos...</p>
+        </div>
+    </div>
+
+<div id="modalPonto" class="modal-sobreposicao" style="display: none;">
+    <div class="modal-conteudo">
+        <h3>Descreva este ponto</h3>
+        <p>Esta informação será lida pelo sistema para o aluno.</p>
+        
+        <textarea id="textareaPonto" rows="5" placeholder="Digite aqui a audiodescrição ou conteúdo educativo..."></textarea>
+        
+        <div class="modal-botoes">
+            <button id="btnCancelarPonto" class="btn-secundario">Cancelar</button>
+            <button id="btnSalvarPonto" class="btn-primario">Confirmar</button>
+        </div>
+
+        <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+            <button id="btnExcluirPonto" class="btn-perigo" style="width: 100%; display: none;">
+                Excluir este Ponto
+            </button>
+        </div>
+    </div>
+</div>
+    </div>
+    <div id="notificacaoSucesso" class="toast-sucesso">
+    Infográfico salvo com sucesso!
+    </div>
+
+    <script src="/script.js"></script>
+</body>
+</html>

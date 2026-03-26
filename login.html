@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login do Professor</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container-principal container-login">
+        <h1>Área do Professor</h1>
+        <p>Por favor, faça o login para continuar.</p>
+        
+        <div id="mensagemErro" class="mensagem-erro" style="display: none;">
+            Usuário ou senha incorretos. Tente novamente.
+        </div>
+        
+        <form action="/login" method="POST" class="login-form">
+            <div class="form-group">
+                <label for="usuario">Usuário:</label>
+                <input type="text" id="usuario" name="usuario" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="senha">Senha:</label>
+                <input type="password" id="senha" name="senha" class="form-input" required>
+            </div>
+            <button type="submit" class="btn-submit">Entrar</button>
+        </form>
+
+        <p style="margin-top: 20px;">
+            Não tem uma conta? <a href="/cadastro">Cadastre-se aqui</a>
+        </p>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('erro')) {
+            document.getElementById('mensagemErro').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
