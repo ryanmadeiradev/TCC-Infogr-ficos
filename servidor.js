@@ -86,7 +86,6 @@ app.post('/salvar-infografico', checarAutenticacao, upload.single('imagemInfogra
     const professorId = req.session.usuario.id;
     const autor = req.session.usuario.usuario;
 
-
     const sqlInfografico = `INSERT INTO infograficos (titulo, caminho_imagem, professor_id, autor) VALUES (?, ?, ?, ?)`;
     db.run(sqlInfografico, [titulo, caminhoImagem, professorId, autor], function(err) {
         if (err) return res.status(500).json({ success: false, message: 'Erro ao salvar.' });
@@ -121,7 +120,8 @@ app.get('/api/infografico/:id', (req, res) => {
     db.get(`SELECT * FROM infograficos WHERE id = ?`, [id], (err, infografico) => {
         if (err || !infografico) return res.status(404).json({ error: "Infográfico não encontrado." });
         resultado.infografico = infografico;
-        db.all(`SELECT * FROM pontos WHERE infografico_id = ?`, [id], (err, pontos) => {
+        
+        db.all(`SELECT * FROM pontos WHERE infografico_id = ? ORDER BY id ASC`, [id], (err, pontos) => {
             if (err) return res.status(500).json({ error: err.message });
             resultado.pontos = pontos;
             res.json(resultado);
@@ -156,14 +156,13 @@ app.get('/logout', (req, res) => {
     req.session.destroy(() => res.redirect('/login'));
 });
 
-
 app.get('/api/exportar-independente/:id', (req, res) => {
     const id = req.params.id;
 
     db.get("SELECT * FROM infograficos WHERE id = ?", [id], (err, info) => {
         if (err || !info) return res.status(404).send("Infográfico não encontrado.");
 
-        db.all("SELECT * FROM pontos WHERE infografico_id = ?", [id], (err, pontos) => {
+        db.all("SELECT * FROM pontos WHERE infografico_id = ? ORDER BY id ASC", [id], (err, pontos) => {
             if (err) return res.status(500).send("Erro ao buscar pontos.");
 
             const caminhoImagem = path.join(__dirname, info.caminho_imagem);
@@ -213,16 +212,12 @@ const htmlIndependente = `
             margin: 0 auto 30px auto; 
             padding: 15px 20px; 
             background-color: var(--cor-body); 
-            
             border: 1px solid #ffffff; 
-            
             border-radius: 20px; 
             cursor: pointer; 
             transition: all 0.3s ease;
-            
             width: 50%; 
             min-width: 300px;
-            
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
 
@@ -287,7 +282,7 @@ const htmlIndependente = `
             synth.cancel();
             const utterance = new SpeechSynthesisUtterance(texto);
             utterance.lang = 'pt-BR';
-            utterance.rate = 2.5;
+            utterance.rate = 2.0;
             synth.speak(utterance);
         }
 

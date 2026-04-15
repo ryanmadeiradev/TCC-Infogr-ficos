@@ -1,8 +1,13 @@
 function falarTexto(texto) {
     window.speechSynthesis.cancel();
+    
+    if (!texto) return;
+
     const utterance = new SpeechSynthesisUtterance(texto);
     utterance.lang = 'pt-BR';
-    utterance.rate = 2.5;
+    
+    utterance.rate = 2.0; 
+    
     window.speechSynthesis.speak(utterance);
 }
 
@@ -20,12 +25,12 @@ document.addEventListener('DOMContentLoaded', function() {
             caixaInstrucao.innerHTML = `
                 <h3>Galeria de Infográficos</h3>
                 <p>Use as setas para navegar entre eles e Enter para selecionar.</p>
-                <div class="setas-visual">➔ ↓ ↑ ⬅</div>
+                <div class="setas-visual" aria-hidden="true">➔ ↓ ↑ ⬅</div>
             `;
             containerGaleria.appendChild(caixaInstrucao);
 
             if (infograficos.length === 0) {
-                containerGaleria.innerHTML += '<p style="grid-column: 1/-1; text-align: center;">Nenhum infográfico disponível.</p>';
+                containerGaleria.innerHTML += '<p style="grid-column: 1/-1; text-align: center;">Nenhum infográfico disponível no momento.</p>';
                 return;
             }
 
@@ -33,9 +38,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 const linkCard = document.createElement('a');
                 linkCard.href = `/infografico/${info.id}`;
                 linkCard.className = 'card-infografico';
+                linkCard.setAttribute('role', 'link'); 
 
                 const imagem = document.createElement('img');
-                imagem.src = info.caminho_imagem ? `/${info.caminho_imagem.replace(/\\/g, '/')}` : '';
+                const pathLimpo = info.caminho_imagem ? info.caminho_imagem.replace(/\\/g, '/') : '';
+                imagem.src = `/${pathLimpo}`;
+                imagem.alt = `Capa do infográfico: ${info.titulo}`; 
                 
                 const titulo = document.createElement('h3');
                 titulo.textContent = info.titulo;
@@ -47,13 +55,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 const btnDownload = document.createElement('button');
                 btnDownload.innerHTML = 'Download';
                 btnDownload.className = 'btn-download-offline';
+                btnDownload.setAttribute('aria-label', `Baixar versão offline de: ${info.titulo}`);
 
                 btnDownload.addEventListener('click', (e) => {
                     e.preventDefault();
-                    e.stopPropagation();
+                    e.stopPropagation(); // Impede de abrir o infográfico ao clicar no download
                     window.location.href = `/api/exportar-independente/${info.id}`;
                 });
 
+                // Montagem do Card
                 linkCard.appendChild(imagem);
                 linkCard.appendChild(titulo);
                 linkCard.appendChild(autor);
@@ -62,6 +72,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             iniciarNavegacaoGaleria();
+        })
+        .catch(err => {
+            console.error('Erro na Galeria:', err);
+            containerGaleria.innerHTML = '<p>Erro ao carregar infográficos. Verifique a conexão.</p>';
         });
 });
 
@@ -69,10 +83,17 @@ function iniciarNavegacaoGaleria() {
     let indiceSelecionado = -2;
     const todosOsCards = document.querySelectorAll('.card-infografico');
     const caixaInstrucao = document.getElementById('instrucao-galeria');
+    let audioAtivado = false;
 
     document.addEventListener('keydown', (evento) => {
-        if (['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'].includes(evento.key)) {
+        const teclasPermitidas = ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'Enter'];
+        
+        if (teclasPermitidas.includes(evento.key)) {
             evento.preventDefault();
+
+            if (!audioAtivado) {
+                audioAtivado = true;
+            }
 
             if (indiceSelecionado === -2) {
                 indiceSelecionado = -1;
@@ -90,7 +111,7 @@ function iniciarNavegacaoGaleria() {
             if (indiceSelecionado === -1) {
                 caixaInstrucao.classList.add('focused');
                 caixaInstrucao.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                falarTexto("Galeria de Infográficos. Use as setas para navegar entre eles e Enter para selecionar.");
+                falarTexto("Galeria de Infográficos. Use as setas para navegar e Enter para selecionar.");
             } else {
                 const cardAtual = todosOsCards[indiceSelecionado];
                 cardAtual.classList.add('focused');
@@ -98,13 +119,16 @@ function iniciarNavegacaoGaleria() {
 
                 const titulo = cardAtual.querySelector('h3').textContent;
                 const autor = cardAtual.querySelector('.card-autor').textContent;
-                falarTexto(`${titulo}. ${autor}`);
+                falarTexto(`${titulo}. ${autor}. Pressione Enter para abrir.`);
             }
         }
 
         if (evento.key === 'Enter' && indiceSelecionado > -1) {
             evento.preventDefault();
-            todosOsCards[indiceSelecionado].click();
+            falarTexto("Abrindo infográfico...");
+            setTimeout(() => {
+                todosOsCards[indiceSelecionado].click();
+            }, 500);
         }
     });
 }

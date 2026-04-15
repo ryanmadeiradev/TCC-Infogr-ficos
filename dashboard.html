@@ -2,6 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="description" content="Plataforma AudiblEye: Infográficos assistivos com descrição em áudio para acessibilidade.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard do Professor</title>
     <link rel="stylesheet" href="/style.css">
@@ -19,7 +20,15 @@
 
         <div class="form-group" style="text-align: left; max-width: 500px; margin: 20px auto;">
             <label for="carregadorImagem">2. Escolha uma imagem:</label>
-            <input type="file" id="carregadorImagem" accept="image/*">
+            <input type="file" id="carregadorImagem" accept="image/png, image/jpeg">
+    
+            <p style="color: #d32f2f; font-size: 0.85em; margin-top: 5px; font-weight: bold;">
+            Atenção: Use apenas JPG ou PNG. Tamanho máximo permitido: 1200x650px.
+            </p>
+
+            <p id="avisoErroImagem" style="color: #d32f2f; font-weight: bold; font-size: 0.9em; display: none; margin-top: 8px;">
+            ⚠️ Erro: A imagem selecionada excede os limites permitidos.
+            </p>
         </div>
         
         <h3 id="instrucoes" style="display: none;">3. Clique na imagem para adicionar os pontos</h3>
@@ -40,28 +49,28 @@
         </div>
     </div>
 
-<div id="modalPonto" class="modal-sobreposicao" style="display: none;">
-    <div class="modal-conteudo">
-        <h3>Descreva este ponto</h3>
-        <p>Esta informação será lida pelo sistema para o aluno.</p>
-        
-        <textarea id="textareaPonto" rows="5" placeholder="Digite aqui a audiodescrição ou conteúdo educativo..."></textarea>
-        
-        <div class="modal-botoes">
-            <button id="btnCancelarPonto" class="btn-secundario">Cancelar</button>
-            <button id="btnSalvarPonto" class="btn-primario">Confirmar</button>
-        </div>
+    <div id="modalPonto" class="modal-sobreposicao" style="display: none;">
+        <div class="modal-conteudo">
+            <h3>Descreva este ponto</h3>
+            <p>Esta informação será lida pelo sistema para o aluno.</p>
+            
+            <textarea id="textareaPonto" rows="5" placeholder="Digite aqui a audiodescrição ou conteúdo educativo..."></textarea>
+            
+            <div class="modal-botoes">
+                <button id="btnCancelarPonto" class="btn-secundario">Cancelar</button>
+                <button id="btnSalvarPonto" class="btn-primario">Confirmar</button>
+            </div>
 
-        <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
-            <button id="btnExcluirPonto" class="btn-perigo" style="width: 100%; display: none;">
-                Excluir este Ponto
-            </button>
+            <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+                <button id="btnExcluirPonto" class="btn-perigo" style="width: 100%; display: none;">
+                    Excluir este Ponto
+                </button>
+            </div>
         </div>
     </div>
-</div>
-    </div>
+
     <div id="notificacaoSucesso" class="toast-sucesso">
-    Infográfico salvo com sucesso!
+        Infográfico salvo com sucesso!
     </div>
 
     <script src="/script.js"></script>

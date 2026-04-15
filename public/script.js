@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const instrucoes = document.getElementById('instrucoes');
     const botaoSalvar = document.getElementById('botaoSalvar');
     const listaInfograficos = document.getElementById('listaInfograficos');
+    const avisoErroImagem = document.getElementById('avisoErroImagem');
 
     let dadosDosMarcadores = [];
     let arquivoDeImagem = null;
@@ -32,12 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
         textareaPonto.focus();
         callbackSalvar = onSave;
         callbackExcluir = onDelete;
-
-        if (prefill) {
-            btnExcluirPonto.style.display = 'block';
-        } else {
-            btnExcluirPonto.style.display = 'none';
-        }
+        btnExcluirPonto.style.display = prefill ? 'block' : 'none';
     }
 
     function fecharModalPonto() {
@@ -128,25 +124,58 @@ document.addEventListener('DOMContentLoaded', function() {
                 desenharMarcadores();
                 imagem.addEventListener('click', adicionarMarcador);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
+                esconderErroImagem();
             });
     }
 
     carregadorImagem.addEventListener('change', function(evento) {
         const arquivo = evento.target.files[0];
-        if (arquivo) {
-            arquivoDeImagem = arquivo;
-            const leitor = new FileReader();
-            leitor.onload = function(e) {
-                containerInfografico.innerHTML = '';
-                const imagem = document.createElement('img');
-                imagem.src = e.target.result;
-                containerInfografico.appendChild(imagem);
-                instrucoes.style.display = 'block';
-                imagem.addEventListener('click', adicionarMarcador);
-            }
-            leitor.readAsDataURL(arquivo);
+        if (!arquivo) return;
+
+        const formatosValidos = ['image/jpeg', 'image/png', 'image/jpg'];
+        if (!formatosValidos.includes(arquivo.type)) {
+            mostrarErroImagem("Formato inválido! Use apenas JPG ou PNG.");
+            return;
         }
+
+        const leitor = new FileReader();
+        leitor.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const LARGURA_MAX = 1200;
+                const ALTURA_MAX = 650;
+
+                if (this.width > LARGURA_MAX || this.height > ALTURA_MAX) {
+                    mostrarErroImagem(`Imagem muito grande (${this.width}x${this.height}px). O máximo é ${LARGURA_MAX}x${ALTURA_MAX}px.`);
+                } else {
+                    esconderErroImagem();
+                    arquivoDeImagem = arquivo;
+                    containerInfografico.innerHTML = '';
+                    const imagemVisualizacao = document.createElement('img');
+                    imagemVisualizacao.src = e.target.result;
+                    containerInfografico.appendChild(imagemVisualizacao);
+                    instrucoes.style.display = 'block';
+                    imagemVisualizacao.addEventListener('click', adicionarMarcador);
+                }
+            };
+            img.src = e.target.result;
+        }
+        leitor.readAsDataURL(arquivo);
     });
+
+    function mostrarErroImagem(mensagem) {
+        avisoErroImagem.textContent = "⚠️ " + mensagem;
+        avisoErroImagem.style.display = 'block';
+        carregadorImagem.value = ''; 
+        containerInfografico.innerHTML = '';
+        instrucoes.style.display = 'none';
+        botaoSalvar.style.display = 'none';
+        arquivoDeImagem = null;
+    }
+
+    function esconderErroImagem() {
+        avisoErroImagem.style.display = 'none';
+    }
 
     function adicionarMarcador(evento) {
         abrirModalPonto('', (texto) => {
@@ -188,8 +217,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     botaoSalvar.addEventListener('click', function() {
         const titulo = tituloInfograficoInput.value;
-        if (!titulo.trim()) return mostrarNotificacao('Dê um nome ao infográfico.');
-        if (!editandoId && !arquivoDeImagem) return mostrarNotificacao('Selecione uma imagem.');
+        if (!titulo.trim()) return mostrarNotificacao('Dê um nome ao infográfico.'); // [cite: 25, 28]
+        if (!editandoId && !arquivoDeImagem) return mostrarNotificacao('Selecione uma imagem válida.');
         if (dadosDosMarcadores.length === 0) return mostrarNotificacao('Adicione pontos na imagem.');
 
         const formData = new FormData();
@@ -221,6 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
         botaoSalvar.textContent = "Salvar";
         instrucoes.style.display = 'none';
         carregadorImagem.value = '';
+        esconderErroImagem();
         fecharModalPonto();
     }
 
