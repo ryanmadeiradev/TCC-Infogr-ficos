@@ -13,35 +13,35 @@ Acesse o sistema em: https://tcc-infogr-ficos.onrender.com/galeria
 
 Para validar as funcionalidades de criação e a tecnologia assistiva, siga os passos abaixo:
 
-1. Acesso do Professor
+    1. Acesso do Professor
 
 No portal de login, utilize as seguintes credenciais de teste:
 
-    Usuário: Maria Madeira
+Usuário: Maria Madeira
 
-    Senha: 12345
+Senha: 12345
 
-2. Criando um Infográfico Acessível
+    2. Criando um Infográfico Acessível
 
-    Clique em Criar Novo Infográfico (ou similar).
+Clique em Criar Novo Infográfico (ou similar).
 
-    Defina um Nome para o seu projeto.
+Defina um Nome para o seu projeto.
 
-    Faça o upload de uma imagem de sua preferência.
+Faça o upload de uma imagem de sua preferência.
 
-    Mapeamento: Clique em qualquer ponto estratégico da imagem para criar um "ponto de interesse".
+Mapeamento: Clique em qualquer ponto estratégico da imagem para criar um "ponto de interesse".
 
-    Descrição: Insira o texto descritivo que deseja que o sistema narre naquele ponto.
+Descrição: Insira o texto descritivo que deseja que o sistema narre naquele ponto.
 
-    Após mapear todos os pontos, clique em Salvar.
+Após mapear todos os pontos, clique em Salvar.
 
-3. Testando a Acessibilidade (Navegação via Teclado)
+    3. Testando a Acessibilidade (Navegação via Teclado)
 
-    Volte para a página de Galeria (/galeria).
+Volte para a página de Galeria (/galeria).
 
-    Interação Assistiva: Utilize as Setas do Teclado (Direita/Esquerda) para navegar entre os infográficos e pontos.
+Interação Assistiva: Utilize as Setas do Teclado (Direita/Esquerda) para navegar entre os infográficos e pontos.
 
-    Feedback Sonoro: O sistema utilizará a Web Speech API para ler automaticamente as descrições dos pontos conforme você navega, simulando a experiência de um usuário com deficiência visual.
+Feedback Sonoro: O sistema utilizará a Web Speech API para ler automaticamente as descrições dos pontos conforme você navega, simulando a experiência de um usuário com deficiência visual.
 
 
     🛠️ Tecnologias
