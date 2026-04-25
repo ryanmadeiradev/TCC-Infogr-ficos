@@ -59,11 +59,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 btnDownload.addEventListener('click', (e) => {
                     e.preventDefault();
-                    e.stopPropagation(); // Impede de abrir o infográfico ao clicar no download
+                    e.stopPropagation();
                     window.location.href = `/api/exportar-independente/${info.id}`;
                 });
 
-                // Montagem do Card
                 linkCard.appendChild(imagem);
                 linkCard.appendChild(titulo);
                 linkCard.appendChild(autor);

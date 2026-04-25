@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     botaoSalvar.addEventListener('click', function() {
         const titulo = tituloInfograficoInput.value;
-        if (!titulo.trim()) return mostrarNotificacao('Dê um nome ao infográfico.'); // [cite: 25, 28]
+        if (!titulo.trim()) return mostrarNotificacao('Dê um nome ao infográfico.');
         if (!editandoId && !arquivoDeImagem) return mostrarNotificacao('Selecione uma imagem válida.');
         if (dadosDosMarcadores.length === 0) return mostrarNotificacao('Adicione pontos na imagem.');
 

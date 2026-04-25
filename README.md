@@ -43,7 +43,6 @@ Interação Assistiva: Utilize as Setas do Teclado (Direita/Esquerda) para naveg
 
 Feedback Sonoro: O sistema utilizará a Web Speech API para ler automaticamente as descrições dos pontos conforme você navega, simulando a experiência de um usuário com deficiência visual.
 
-
     🛠️ Tecnologias
     
 Backend: Node.js + Express
