@@ -1,51 +1,59 @@
-👁️ AudiblEye - Plataforma de Aprendizado Assistivo
+    👁️ AudiblEye - Plataforma de Aprendizado Assistivo
+
 O AudiblEye é uma aplicação web voltada à acessibilidade pedagógica, desenvolvida como Trabalho de Conclusão de Curso (TCC) para o curso de ADS no IFSUL - Campus Bagé. A plataforma permite que educadores transformem imagens estáticas em infográficos narrados para usuários com deficiência visual.
 
-🌐 Link de Acesso
+    🌐 Link de Acesso
+
 Acesse o sistema em: https://tcc-infogr-ficos.onrender.com/galeria
 
-⚠️ Importante: O projeto está hospedado no plano gratuito do Render. Por isso, o servidor "entra em repouso" após períodos de inatividade. Ao clicar no link, aguarde cerca de 1 a 2 minutos para que a instância inicialize e o site carregue completamente.
+⚠️ Importante:
+     O projeto está hospedado no plano gratuito do Render. Por isso, o servidor "entra em repouso" após períodos de inatividade. Ao clicar no link, aguarde cerca de 1 a 2 minutos para que a instância inicialize e o site carregue completamente.
 
-🧪 Roteiro de Teste (Passo a Passo)
+    🧪 Roteiro de Teste (Passo a Passo)
+
 Para validar as funcionalidades de criação e a tecnologia assistiva, siga os passos abaixo:
 
 1. Acesso do Professor
+
 No portal de login, utilize as seguintes credenciais de teste:
 
-Usuário: Maria Madeira
+    Usuário: Maria Madeira
 
-Senha: 12345
+    Senha: 12345
 
 2. Criando um Infográfico Acessível
-Clique em Criar Novo Infográfico (ou similar).
 
-Defina um Nome para o seu projeto.
+    Clique em Criar Novo Infográfico (ou similar).
 
-Faça o upload de uma imagem de sua preferência.
+    Defina um Nome para o seu projeto.
 
-Mapeamento: Clique em qualquer ponto estratégico da imagem para criar um "ponto de interesse".
+    Faça o upload de uma imagem de sua preferência.
 
-Descrição: Insira o texto descritivo que deseja que o sistema narre naquele ponto.
+    Mapeamento: Clique em qualquer ponto estratégico da imagem para criar um "ponto de interesse".
 
-Após mapear todos os pontos, clique em Salvar.
+    Descrição: Insira o texto descritivo que deseja que o sistema narre naquele ponto.
+
+    Após mapear todos os pontos, clique em Salvar.
 
 3. Testando a Acessibilidade (Navegação via Teclado)
-Volte para a página de Galeria (/galeria).
 
-Interação Assistiva: Utilize as Setas do Teclado (Direita/Esquerda) para navegar entre os infográficos e pontos.
+    Volte para a página de Galeria (/galeria).
 
-Feedback Sonoro: O sistema utilizará a Web Speech API para ler automaticamente as descrições dos pontos conforme você navega, simulando a experiência de um usuário com deficiência visual.
+    Interação Assistiva: Utilize as Setas do Teclado (Direita/Esquerda) para navegar entre os infográficos e pontos.
 
-🛠️ Tecnologias
-Backend: Node.js + Express
+    Feedback Sonoro: O sistema utilizará a Web Speech API para ler automaticamente as descrições dos pontos conforme você navega, simulando a experiência de um usuário com deficiência visual.
 
-Banco de Dados: SQLite (Persistência de metadados e coordenadas)
+    🛠️ Tecnologias
+    
+    Backend: Node.js + Express
 
-Frontend: HTML5, CSS3 e JavaScript (Manipulação de DOM e Eventos de Teclado)
+    Banco de Dados: SQLite (Persistência de metadados e coordenadas)
 
-API de Voz: Web Speech API (Síntese de voz nativa)
+    Frontend: HTML5, CSS3 e JavaScript (Manipulação de DOM e Eventos de Teclado)
 
-🎓 Autor
-Ryan Madeira Graduando em Análise e Desenvolvimento de Sistemas — IFSUL Bagé/RS.
+    API de Voz: Web Speech API (Síntese de voz nativa)
 
-Foco em Tecnologias Assistivas e Inclusão Digital.
+    🎓 Autor
+    Ryan Madeira Graduando em Análise e Desenvolvimento de Sistemas — IFSUL Bagé/RS.
+
+    Foco em Tecnologias Assistivas e Inclusão Digital.
