@@ -43,17 +43,18 @@ No portal de login, utilize as seguintes credenciais de teste:
 
     Feedback Sonoro: O sistema utilizará a Web Speech API para ler automaticamente as descrições dos pontos conforme você navega, simulando a experiência de um usuário com deficiência visual.
 
+
     🛠️ Tecnologias
     
-    Backend: Node.js + Express
+Backend: Node.js + Express
 
-    Banco de Dados: SQLite (Persistência de metadados e coordenadas)
+Banco de Dados: SQLite (Persistência de metadados e coordenadas)
 
-    Frontend: HTML5, CSS3 e JavaScript (Manipulação de DOM e Eventos de Teclado)
+Frontend: HTML5, CSS3 e JavaScript (Manipulação de DOM e Eventos de Teclado)
 
-    API de Voz: Web Speech API (Síntese de voz nativa)
+API de Voz: Web Speech API (Síntese de voz nativa)
 
     🎓 Autor
-    Ryan Madeira Graduando em Análise e Desenvolvimento de Sistemas — IFSUL Bagé/RS.
+Ryan Madeira Graduando em Análise e Desenvolvimento de Sistemas — IFSUL Bagé/RS.
 
-    Foco em Tecnologias Assistivas e Inclusão Digital.
+Foco em Tecnologias Assistivas e Inclusão Digital.
