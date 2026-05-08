@@ -22,7 +22,7 @@
             <label for="carregadorImagem">2. Escolha uma imagem:</label>
             <input type="file" id="carregadorImagem" accept="image/png, image/jpeg">
     
-            <p style="color: #d32f2f; font-size: 0.85em; margin-top: 5px; font-weight: bold;">
+            <p style="color: #000000; font-size: 0.85em; margin-top: 5px; font-weight: bold;">
             Atenção: Use apenas JPG ou PNG. Tamanho máximo permitido: 1200x650px.
             </p>
 
@@ -31,7 +31,7 @@
             </p>
         </div>
         
-        <h3 id="instrucoes" style="display: none;">3. Clique na imagem para adicionar os pontos</h3>
+        <h2 id="instrucoes" style="display: none;">3. Clique na imagem para adicionar os pontos</h2>
 
         <div id="containerInfografico" class="container-infografico"></div>
 
@@ -43,7 +43,7 @@
     <hr style="margin: 40px 0; border: 1px solid #eee;">
 
     <div class="container-principal" style="margin-top: 0;">
-        <h2>Meus Infográficos Criados</h2>
+        <h3>Meus Infográficos Criados</h3>
         <div id="listaInfograficos" class="lista-infograficos">
             <p>Carregando seus infográficos...</p>
         </div>
@@ -51,11 +51,10 @@
 
     <div id="modalPonto" class="modal-sobreposicao" style="display: none;">
         <div class="modal-conteudo">
-            <h3>Descreva este ponto</h3>
+            <h4>Descreva este ponto</h4>
             <p>Esta informação será lida pelo sistema para o aluno.</p>
-            
-            <textarea id="textareaPonto" rows="5" placeholder="Digite aqui a audiodescrição ou conteúdo educativo..."></textarea>
-            
+            <label for="textareaPonto" class="sr-only">Descrição do ponto de informação</label>
+'           <textarea id="textareaPonto" rows="5" placeholder="Digite aqui a audiodescrição ou conteúdo educativo..."></textarea>
             <div class="modal-botoes">
                 <button id="btnCancelarPonto" class="btn-secundario">Cancelar</button>
                 <button id="btnSalvarPonto" class="btn-primario">Confirmar</button>

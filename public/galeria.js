@@ -23,9 +23,9 @@ document.addEventListener('DOMContentLoaded', function() {
             caixaInstrucao.id = 'instrucao-galeria';
             caixaInstrucao.className = 'caixa-instrucao-galeria';
             caixaInstrucao.innerHTML = `
-                <h3>Galeria de Infográficos</h3>
+                <h2>Galeria de Infográficos</h2>
                 <p>Use as setas para navegar entre eles e Enter para selecionar.</p>
-                <div class="setas-visual" aria-hidden="true">➔ ↓ ↑ ⬅</div>
+                <div class="setas-visual">➔ ↓ ↑ ⬅</div>
             `;
             containerGaleria.appendChild(caixaInstrucao);
 

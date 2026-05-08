@@ -33,7 +33,7 @@ body {
 }
 
 .link-professor {
-    color: #90EE90;
+    color: #ffffff;
     text-decoration: none;
     font-weight: bold;
     font-size: 14px;
@@ -41,7 +41,7 @@ body {
 
 .banner-audible {
     background-color: var(--verde-principal);
-    color: white;
+    color: rgb(0, 0, 0);
     padding: 15px 20px;
     text-align: center;
     border-bottom: 4px solid var(--verde-fundo);
@@ -97,7 +97,7 @@ body {
 .setas-visual {
     margin-top: 10px;
     font-size: 28px;
-    color: var(--verde-principal);
+    color: black;
 }
 
 #visualizador {
@@ -164,7 +164,7 @@ body {
     background-color: #C8E6C9;
     text-align: center;
     padding: 0 5px 10px;
-    color: #666;
+    color: #000000;
     font-size: 0.9em;
 }
 
