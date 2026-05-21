@@ -1,13 +1,10 @@
 function falarTexto(texto) {
     window.speechSynthesis.cancel();
-    
     if (!texto) return;
 
     const utterance = new SpeechSynthesisUtterance(texto);
     utterance.lang = 'pt-BR';
-    
-    utterance.rate = 2.0; 
-    
+    utterance.rate = 2.0;
     window.speechSynthesis.speak(utterance);
 }
 
@@ -22,15 +19,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const caixaInstrucao = document.createElement('div');
             caixaInstrucao.id = 'instrucao-galeria';
             caixaInstrucao.className = 'caixa-instrucao-galeria';
+            caixaInstrucao.setAttribute('tabindex', '0');
             caixaInstrucao.innerHTML = `
                 <h2>Galeria de Infográficos</h2>
-                <p>Use as setas para navegar entre eles e Enter para selecionar.</p>
+                <p>Use as setas para navegar e Enter para selecionar.</p>
                 <div class="setas-visual">➔ ↓ ↑ ⬅</div>
             `;
             containerGaleria.appendChild(caixaInstrucao);
 
             if (infograficos.length === 0) {
-                containerGaleria.innerHTML += '<p style="grid-column: 1/-1; text-align: center;">Nenhum infográfico disponível no momento.</p>';
+                containerGaleria.innerHTML += '<p style="grid-column: 1/-1; text-align: center;">Nenhum infográfico disponível no momento.</p>';   
+                iniciarNavegacaoGaleria(true);
                 return;
             }
 
@@ -39,6 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 linkCard.href = `/infografico/${info.id}`;
                 linkCard.className = 'card-infografico';
                 linkCard.setAttribute('role', 'link'); 
+                linkCard.setAttribute('tabindex', '0');
 
                 const imagem = document.createElement('img');
                 const pathLimpo = info.caminho_imagem ? info.caminho_imagem.replace(/\\/g, '/') : '';
@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 btnDownload.innerHTML = 'Download';
                 btnDownload.className = 'btn-download-offline';
                 btnDownload.setAttribute('aria-label', `Baixar versão offline de: ${info.titulo}`);
+                btnDownload.setAttribute('tabindex', '-1');
 
                 btnDownload.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -70,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 containerGaleria.appendChild(linkCard);
             });
             
-            iniciarNavegacaoGaleria();
+            iniciarNavegacaoGaleria(false);
         })
         .catch(err => {
             console.error('Erro na Galeria:', err);
@@ -78,42 +79,31 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 });
 
-function iniciarNavegacaoGaleria() {
-    let indiceSelecionado = -2;
-    const todosOsCards = document.querySelectorAll('.card-infografico');
+function iniciarNavegacaoGaleria(galeriaVazia) {
+    let indiceSelecionado = -1;
+    const todosOsCards = Array.from(document.querySelectorAll('.card-infografico'));
     const caixaInstrucao = document.getElementById('instrucao-galeria');
     let audioAtivado = false;
 
-    document.addEventListener('keydown', (evento) => {
-        const teclasPermitidas = ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'Enter'];
-        
-        if (teclasPermitidas.includes(evento.key)) {
-            evento.preventDefault();
+    if (caixaInstrucao) {
+        caixaInstrucao.classList.add('focused');
+        caixaInstrucao.focus();
+    }
 
-            if (!audioAtivado) {
-                audioAtivado = true;
-            }
+    function gerenciarFocoEAudio() {
+        caixaInstrucao.classList.remove('focused');
+        todosOsCards.forEach(c => c.classList.remove('focused'));
 
-            if (indiceSelecionado === -2) {
-                indiceSelecionado = -1;
-            } else if (evento.key === 'ArrowRight' || evento.key === 'ArrowDown') {
-                if (indiceSelecionado < todosOsCards.length - 1) indiceSelecionado++;
-                else indiceSelecionado = -1;
-            } else if (evento.key === 'ArrowLeft' || evento.key === 'ArrowUp') {
-                if (indiceSelecionado > -1) indiceSelecionado--;
-                else indiceSelecionado = todosOsCards.length - 1;
-            }
-
-            caixaInstrucao.classList.remove('focused');
-            todosOsCards.forEach(c => c.classList.remove('focused'));
-
-            if (indiceSelecionado === -1) {
-                caixaInstrucao.classList.add('focused');
-                caixaInstrucao.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                falarTexto("Galeria de Infográficos. Use as setas para navegar e Enter para selecionar.");
-            } else {
-                const cardAtual = todosOsCards[indiceSelecionado];
+        if (indiceSelecionado === -1) {
+            caixaInstrucao.classList.add('focused');
+            caixaInstrucao.focus();
+            caixaInstrucao.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            falarTexto("Galeria de Infográficos. Use as setas para navegar e Enter para selecionar.");
+        } else {
+            const cardAtual = todosOsCards[indiceSelecionado];
+            if (cardAtual) {
                 cardAtual.classList.add('focused');
+                cardAtual.focus();
                 cardAtual.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
                 const titulo = cardAtual.querySelector('h3').textContent;
@@ -121,12 +111,50 @@ function iniciarNavegacaoGaleria() {
                 falarTexto(`${titulo}. ${autor}. Pressione Enter para abrir.`);
             }
         }
+    }
+
+    document.addEventListener('keydown', (evento) => {
+        const teclasPermitidas = ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'Enter'];
+        if (!teclasPermitidas.includes(evento.key)) return;
+
+        evento.preventDefault();
+
+        if (!audioAtivado) {
+            audioAtivado = true;
+            if (indiceSelecionado === -1 && !['Enter'].includes(evento.key)) {
+                gerenciarFocoEAudio();
+                return;
+            }
+        }
+
+        if (evento.key === 'ArrowRight' || evento.key === 'ArrowDown') {
+            if (galeriaVazia) {
+                falarTexto("Nenhum infográfico disponível no momento.");
+                return;
+            }
+
+            if (indiceSelecionado < todosOsCards.length - 1) {
+                indiceSelecionado++;
+                gerenciarFocoEAudio();
+            } else {
+                falarTexto("Fim da galeria.");
+            }
+        } 
+        else if (evento.key === 'ArrowLeft' || evento.key === 'ArrowUp') {
+            if (indiceSelecionado > -1) {
+                indiceSelecionado--;
+                gerenciarFocoEAudio();
+            } else {
+                falarTexto("Início da galeria. Você está na caixa de instruções.");
+            }
+        }
 
         if (evento.key === 'Enter' && indiceSelecionado > -1) {
-            evento.preventDefault();
             falarTexto("Abrindo infográfico...");
             setTimeout(() => {
-                todosOsCards[indiceSelecionado].click();
+                if (todosOsCards[indiceSelecionado]) {
+                    todosOsCards[indiceSelecionado].click();
+                }
             }, 500);
         }
     });

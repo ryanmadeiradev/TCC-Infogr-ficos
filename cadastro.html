@@ -3,28 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="description" content="Plataforma AudiblEye: Infográficos assistivos com descrição em áudio para acessibilidade.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Professor</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <div class="container-principal container-login">
         <h1>Cadastrar Novo Professor</h1>
+        
+        <div id="mensagemErroCadastro" class="mensagem-erro" role="alert" aria-live="assertive" style="display: none;">
+            Este nome de usuário ou e-mail já está cadastrado. Tente outro.
+        </div>
+
         <form action="/cadastro" method="POST" class="login-form">
             <div class="form-group">
                 <label for="usuario">Usuário (Nome Completo):</label>
-                <input type="text" id="usuario" name="usuario" class="form-input" required>
+                <input type="text" id="usuario" name="usuario" placeholder="Seu Nome" class="form-input" required>
             </div>
             <div class="form-group">
-                <label for="email">E-mail:</label>
-                <input type="email" id="email" name="email" class="form-input" required>
+                <label for="campoEmail">Email:</label>
+                <input type="email" id="campoEmail" name="email" placeholder="Seu Email" class="form-input" required>
             </div>
             <div class="form-group">
                 <label for="senha">Senha:</label>
-                <input type="password" id="senha" name="senha" class="form-input" required>
+                <input type="password" id="senha" name="senha" placeholder="Sua Senha" class="form-input" required>
             </div>
             <button type="submit" class="btn-submit">Cadastrar</button>
         </form>
         <p style="margin-top: 15px;"><a href="/login">Já tem uma conta? Faça login</a></p>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            if (urlParams.get('erro') === 'duplicado') {
+                const caixaErro = document.getElementById('mensagemErroCadastro');
+                if (caixaErro) {
+                    caixaErro.style.display = 'block';
+                }
+            }
+        });
+    </script>
 </body>
 </html>

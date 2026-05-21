@@ -55,7 +55,9 @@ app.post('/cadastro', async (req, res) => {
     try {
         const hashSenha = await bcrypt.hash(senha, 10);
         db.run(`INSERT INTO professores (usuario, email, senha) VALUES (?, ?, ?)`, [usuario, email, hashSenha], function(err) {
-            if (err) return res.send('Erro ao cadastrar. O nome de usuário ou e-mail já pode existir.');
+            if (err) {
+                return res.redirect('/cadastro?erro=duplicado');
+            }
             res.redirect('/login');
         });
     } catch {
@@ -64,12 +66,17 @@ app.post('/cadastro', async (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-    const { usuario, senha } = req.body;
-    db.get(`SELECT * FROM professores WHERE usuario = ?`, [usuario], async (err, professor) => {
+    const { email, senha } = req.body;
+    db.get(`SELECT * FROM professores WHERE email = ?`, [email], async (err, professor) => {
         if (err || !professor) return res.redirect('/login?erro=1');
+        
         const senhaCorreta = await bcrypt.compare(senha, professor.senha);
         if (senhaCorreta) {
-            req.session.usuario = professor;
+            req.session.usuario = {
+                id: professor.id,
+                usuario: professor.usuario,
+                email: professor.email
+            };
             res.redirect('/dashboard');
         } else {
             res.redirect('/login?erro=1');
@@ -212,7 +219,7 @@ const htmlIndependente = `
             margin: 0 auto 30px auto; 
             padding: 15px 20px; 
             background-color: var(--cor-body); 
-            border: 1px solid #ffffff; 
+            border: 2px solid #ffffff; 
             border-radius: 20px; 
             cursor: pointer; 
             transition: all 0.3s ease;
@@ -222,9 +229,9 @@ const htmlIndependente = `
         }
 
         .caixa-instrucao.focused { 
-            border-color: #ffffff; 
-            background-color: var(--cor-body);
-            outline: none; 
+            border-color: var(--verde-escuro); 
+            background-color: #E8F5E9;
+            outline: 3px solid var(--verde-escuro); 
             transform: scale(1.02);
             box-shadow: 0 6px 20px rgba(0,0,0,0.1);
         }
@@ -232,119 +239,195 @@ const htmlIndependente = `
         .caixa-instrucao p { margin: 0; font-weight: bold; color: var(--verde-escuro); font-size: 1.2em; }
         .caixa-instrucao .sub-texto { font-size: 0.9em; font-weight: normal; margin-top: 5px; color: #444; }
 
-        .box-imagem { 
+        #visualizador { 
             position: relative; 
-            display: inline-block; 
-            border: none; 
-            background-color: transparent;
+            margin: 10px auto;
+            background-color: #C8E6C9;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            max-width: 100%;
+            overflow: auto;
         }
-
-        img { display: block; max-width: 100%; height: auto; border-radius: 10px; }
 
         .marcador { 
             position: absolute; 
-            width: 14px; 
-            height: 14px; 
-            background-color: rgba(255, 0, 0, 0.9); 
-            border: 1.5px solid white; 
+            width: 22px; 
+            height: 22px; 
+            background-color: rgba(255, 0, 0, 0.8); 
+            border: 2px solid white; 
             border-radius: 50%; 
             cursor: pointer; 
             transform: translate(-50%, -50%); 
+            z-index: 10;
         }
 
         .marcador.focused { 
             outline: none;
-            transform: translate(-50%, -50%) scale(1.8);
-            z-index: 10;
+            transform: translate(-50%, -50%) scale(1.5);
             box-shadow: 0 0 15px rgba(255,255,255,0.8);
+            background-color: rgba(255, 0, 0, 1);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div id="ponto-instrucao" class="caixa-instrucao" tabindex="0">
-            <p>Infográfico: ${info.titulo}</p>
-            <p class="sub-texto">Utilize as setas do teclado (▲ ▼ ◄ ►) para navegar entre os pontos.</p>
+        <div id="ponto-instrucao" class="caixa-instrucao focused" tabindex="0">
+            <p id="tituloInfografico">Infográfico: ${info.titulo}</p>
+            <p class="sub-texto">Utilize as setas laterais (◄ ►) para navegar entre os pontos.</p>
         </div>
 
-        <div class="box-imagem">
-            <img src="data:image/${imagemMime};base64,${imagemBase64}">
-            <div id="container-pontos"></div>
-        </div>
+        <div id="visualizador"></div>
     </div>
 
     <script>
         const pontosDados = ${JSON.stringify(pontos)};
         const synth = window.speechSynthesis;
-        let indiceSelecionado = -2; 
+        
+        let indiceDoMarcadorSelecionado = -1; 
+        let historicoCaminho = [];
+        let pontosVisitados = new Set();
+        
+        let instrucaoLida = false;
 
-        function falar(texto) {
+        function falarTexto(texto) {
             synth.cancel();
+            if (!texto) return;
             const utterance = new SpeechSynthesisUtterance(texto);
             utterance.lang = 'pt-BR';
             utterance.rate = 2.0;
             synth.speak(utterance);
         }
 
+        const visualizador = document.getElementById('visualizador');
         const pontoInstrucao = document.getElementById('ponto-instrucao');
-        const container = document.getElementById('container-pontos');
+        const img = new Image();
 
-        pontosDados.forEach((p, i) => {
-            const div = document.createElement('div');
-            div.className = 'marcador';
-            div.style.left = p.posicao_x + '%';
-            div.style.top = p.posicao_y + '%';
-            div.onclick = (e) => { 
-                e.stopPropagation();
-                indiceSelecionado = i; 
-                focarElemento(i);
-            };
-            container.appendChild(div);
-        });
+        window.onload = function() { 
+            pontoInstrucao.focus(); 
+        };
 
-        const todosOsMarcadores = document.querySelectorAll('.marcador');
+        img.onload = function() {
+            const larguraOriginal = this.naturalWidth;
+            const alturaOriginal = this.naturalHeight;
+            
+            visualizador.style.width = larguraOriginal + 'px';
+            visualizador.style.height = alturaOriginal + 'px';
+            visualizador.style.backgroundImage = "url('data:image/${imagemMime};base64,${imagemBase64}')";
 
-        function focarElemento(indice) {
+            pontosDados.forEach((p, i) => {
+                const marcador = document.createElement('div');
+                marcador.className = 'marcador';
+                marcador.style.left = p.posicao_x + '%';
+                marcador.style.top = p.posicao_y + '%';
+                
+                marcador.dataset.x = p.posicao_x;
+                marcador.dataset.y = p.posicao_y;
+                marcador.dataset.texto = p.texto;
+                marcador.dataset.idOriginal = i;
+                marcador.setAttribute('tabindex', '0');
+                
+                visualizador.appendChild(marcador);
+            });
+        };
+
+        img.src = "data:image/${imagemMime};base64,${imagemBase64}";
+
+        const todosOsMarcadores = document.getElementsByClassName('marcador');
+
+        function obterProximoVizinhoEspacial(indiceAtual) {
+            if (indiceAtual === -1) {
+                return 0;
+            }
+
+            const atual = todosOsMarcadores[indiceAtual];
+            const xAtual = parseFloat(atual.dataset.x);
+            const yAtual = parseFloat(atual.dataset.y);
+
+            let melhorIndice = -1;
+            let menorDistanciaAbsoluta = Infinity;
+
+            Array.from(todosOsMarcadores).forEach((marcador, i) => {
+                if (i === indiceAtual) return; 
+                if (pontosVisitados.has(marcador.dataset.idOriginal)) return;
+
+                const xCandidato = parseFloat(marcador.dataset.x);
+                const yCandidato = parseFloat(marcador.dataset.y);
+
+                const dx = xCandidato - xAtual;
+                const dy = yCandidato - yAtual;
+                const distanciaEuclidiana = Math.sqrt(dx * dx + dy * dy);
+
+                if (distanciaEuclidiana < menorDistanciaAbsoluta) {
+                    menorDistanciaAbsoluta = distanciaEuclidiana;
+                    melhorIndice = i;
+                }
+            });
+
+            return melhorIndice;
+        }
+
+        function gerenciarFocoEAudio() {
             pontoInstrucao.classList.remove('focused');
-            todosOsMarcadores.forEach(m => m.classList.remove('focused'));
+            pontoInstrucao.blur();
+            Array.from(todosOsMarcadores).forEach(m => {
+                m.classList.remove('focused');
+                m.blur();
+            });
 
-            if (indice === -1) {
-                pontoInstrucao.classList.add('focused');
-                pontoInstrucao.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                falar("Infográfico ${info.titulo}. Utilize as setas para navegar entre os pontos.");
-            } else if (indice >= 0) {
-                const marcador = todosOsMarcadores[indice];
-                marcador.classList.add('focused');
-                falar(pontosDados[indice].texto);
+            const marcadorAtual = todosOsMarcadores[indiceDoMarcadorSelecionado];
+            if (marcadorAtual) {
+                pontosVisitados.add(marcadorAtual.dataset.idOriginal);
+                marcadorAtual.classList.add('focused');
+                marcadorAtual.focus();
+                marcadorAtual.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                const textoParaLer = marcadorAtual.dataset.texto;
+                setTimeout(() => { falarTexto(textoParaLer); }, 100);
             }
         }
 
         document.addEventListener('keydown', (evento) => {
-            if (['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'].includes(evento.key)) {
-                evento.preventDefault();
+            if (!['ArrowRight', 'ArrowLeft'].includes(evento.key)) return;
+            if (todosOsMarcadores.length === 0) return;
+            
+            evento.preventDefault();
 
-                if (indiceSelecionado === -2) {
-                    indiceSelecionado = -1; 
-                } 
-                else if (evento.key === 'ArrowRight' || evento.key === 'ArrowDown') {
-                    indiceSelecionado = (indiceSelecionado >= pontosDados.length - 1) ? -1 : indiceSelecionado + 1;
-                } 
-                else if (evento.key === 'ArrowLeft' || evento.key === 'ArrowUp') {
-                    indiceSelecionado = (indiceSelecionado <= -1) ? pontosDados.length - 1 : indiceSelecionado - 1;
+            if (!instrucaoLida) {
+                instrucaoLida = true;
+                falarTexto("Infográfico carregado: ${info.titulo}. Para navegar entre os pontos, use as setas laterais.");
+                return;
+            }
+
+            if (evento.key === 'ArrowRight') {
+                const proximoIndice = obterProximoVizinhoEspacial(indiceDoMarcadorSelecionado);
+
+                if (proximoIndice !== -1 && proximoIndice !== undefined) {
+                    if (indiceDoMarcadorSelecionado >= 0) {
+                        historicoCaminho.push(indiceDoMarcadorSelecionado);
+                    }
+                    indiceDoMarcadorSelecionado = proximoIndice;
+                    gerenciarFocoEAudio();
+                } else {
+                    falarTexto("Fim do infográfico.");
                 }
+            } 
+            else if (evento.key === 'ArrowLeft') {
+                if (historicoCaminho.length > 0) {
+                    const atual = todosOsMarcadores[indiceDoMarcadorSelecionado];
+                    if (atual) pontosVisitados.delete(atual.dataset.idOriginal);
 
-                focarElemento(indiceSelecionado);
+                    indiceDoMarcadorSelecionado = historicoCaminho.pop();
+                    gerenciarFocoEAudio();
+                } else {
+                    falarTexto("Início do infográfico.");
+                }
             }
         });
-
-        pontoInstrucao.onclick = () => {
-            indiceSelecionado = -1;
-            focarElemento(-1);
-        };
     </script>
 </body>
 </html>`;
-
             res.setHeader('Content-disposition', 'attachment; filename=' + info.titulo.replace(/\s/g, '_') + '.html');
             res.send(htmlIndependente);
         });
