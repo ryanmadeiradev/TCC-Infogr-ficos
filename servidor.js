@@ -296,7 +296,7 @@ const htmlIndependente = `
             if (!texto) return;
             const utterance = new SpeechSynthesisUtterance(texto);
             utterance.lang = 'pt-BR';
-            utterance.rate = 2.0;
+            utterance.rate = 1.0;
             synth.speak(utterance);
         }
 
