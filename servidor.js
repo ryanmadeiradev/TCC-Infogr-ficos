@@ -97,8 +97,10 @@ app.post('/salvar-infografico', checarAutenticacao, upload.single('imagemInfogra
     db.run(sqlInfografico, [titulo, caminhoImagem, professorId, autor], function(err) {
         if (err) return res.status(500).json({ success: false, message: 'Erro ao salvar.' });
         const infograficoId = this.lastID;
-        const stmt = db.prepare(`INSERT INTO pontos (infografico_id, posicao_x, posicao_y, texto) VALUES (?, ?, ?, ?)`);
-        pontos.forEach(ponto => stmt.run(infograficoId, ponto.x, ponto.y, ponto.texto));
+        
+        const stmt = db.prepare(`INSERT INTO pontos (infografico_id, posicao_x, posicao_y, texto, info_acessibilidade) VALUES (?, ?, ?, ?, ?)`);
+        pontos.forEach(ponto => stmt.run(infograficoId, ponto.x, ponto.y, ponto.texto, ponto.info_acessibilidade));
+        
         stmt.finalize(err => {
             if (err) return res.status(500).json({ success: false, message: 'Erro ao salvar pontos.' });
             res.json({ success: true, message: 'Infográfico salvo com sucesso!' });
@@ -296,7 +298,7 @@ const htmlIndependente = `
             if (!texto) return;
             const utterance = new SpeechSynthesisUtterance(texto);
             utterance.lang = 'pt-BR';
-            utterance.rate = 1.0;
+            utterance.rate = 2.0;
             synth.speak(utterance);
         }
 
@@ -325,6 +327,7 @@ const htmlIndependente = `
                 marcador.dataset.x = p.posicao_x;
                 marcador.dataset.y = p.posicao_y;
                 marcador.dataset.texto = p.texto;
+                marcador.dataset.infoAcessibilidade = p.info_acessibilidade || '';
                 marcador.dataset.idOriginal = i;
                 marcador.setAttribute('tabindex', '0');
                 
@@ -337,9 +340,7 @@ const htmlIndependente = `
         const todosOsMarcadores = document.getElementsByClassName('marcador');
 
         function obterProximoVizinhoEspacial(indiceAtual) {
-            if (indiceAtual === -1) {
-                return 0;
-            }
+            if (indiceAtual === -1) return 0;
 
             const atual = todosOsMarcadores[indiceAtual];
             const xAtual = parseFloat(atual.dataset.x);
@@ -383,12 +384,30 @@ const htmlIndependente = `
                 marcadorAtual.focus();
                 marcadorAtual.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 
-                const textoParaLer = marcadorAtual.dataset.texto;
+                const textoPrincipal = marcadorAtual.dataset.texto;
+                const infoAcess = marcadorAtual.dataset.infoAcessibilidade;
+                
+                let textoParaLer = textoPrincipal;
+                if (infoAcess && infoAcess.trim() !== "") {
+                    textoParaLer += ". " + infoAcess;
+                }
+
                 setTimeout(() => { falarTexto(textoParaLer); }, 100);
             }
         }
 
         document.addEventListener('keydown', (evento) => {
+            if (evento.key === 'Control') {
+                if (synth.speaking) {
+                    if (synth.paused) {
+                        synth.resume();
+                    } else {
+                        synth.pause();
+                    }
+                }
+                return;
+            }
+
             if (!['ArrowRight', 'ArrowLeft'].includes(evento.key)) return;
             if (todosOsMarcadores.length === 0) return;
             
@@ -396,7 +415,7 @@ const htmlIndependente = `
 
             if (!instrucaoLida) {
                 instrucaoLida = true;
-                falarTexto("Infográfico carregado: ${info.titulo}. Para navegar entre os pontos, use as setas laterais.");
+                falarTexto("Infográfico carregado: ${info.titulo}. Para navegar entre os pontos, use as setas laterais. E para pausar, a tecla Control.");
                 return;
             }
 
@@ -451,8 +470,8 @@ app.post('/api/atualizar-infografico/:id', checarAutenticacao, upload.single('im
         if (err) return res.status(500).json({ success: false });
 
         db.run(`DELETE FROM pontos WHERE infografico_id = ?`, [id], () => {
-            const stmt = db.prepare(`INSERT INTO pontos (infografico_id, posicao_x, posicao_y, texto) VALUES (?, ?, ?, ?)`);
-            pontosJson.forEach(p => stmt.run(id, p.x, p.y, p.texto));
+            const stmt = db.prepare(`INSERT INTO pontos (infografico_id, posicao_x, posicao_y, texto, info_acessibilidade) VALUES (?, ?, ?, ?, ?)`);
+            pontosJson.forEach(p => stmt.run(id, p.x, p.y, p.texto, p.info_acessibilidade));
             stmt.finalize(() => res.json({ success: true }));
         });
     });

@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const modalPonto = document.getElementById('modalPonto');
     const textareaPonto = document.getElementById('textareaPonto');
+    const infoAcessibilidadeInput = document.getElementById('infoAcessibilidade');
     const btnSalvarPonto = document.getElementById('btnSalvarPonto');
     const btnCancelarPonto = document.getElementById('btnCancelarPonto');
     const btnExcluirPonto = document.getElementById('btnExcluirPonto');
@@ -27,13 +28,14 @@ document.addEventListener('DOMContentLoaded', function() {
     let callbackSalvar = null;
     let callbackExcluir = null;
 
-    function abrirModalPonto(prefill, onSave, onDelete) {
-        textareaPonto.value = prefill || '';
+    function abrirModalPonto(prefillTexto, prefillAcess, onSave, onDelete) {
+        textareaPonto.value = prefillTexto || '';
+        infoAcessibilidadeInput.value = prefillAcess || '';
         modalPonto.style.display = 'flex';
         textareaPonto.focus();
         callbackSalvar = onSave;
         callbackExcluir = onDelete;
-        btnExcluirPonto.style.display = prefill ? 'block' : 'none';
+        btnExcluirPonto.style.display = prefillTexto ? 'block' : 'none';
     }
 
     function fecharModalPonto() {
@@ -44,11 +46,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     btnSalvarPonto.addEventListener('click', () => {
         const texto = textareaPonto.value.trim();
-        if (texto && callbackSalvar) {
-            callbackSalvar(texto);
+        const infoAcessibilidade = infoAcessibilidadeInput.value.trim();
+
+        if (texto && infoAcessibilidade && callbackSalvar) {
+            callbackSalvar(texto, infoAcessibilidade);
             fecharModalPonto();
-        } else if (!texto) {
-            mostrarNotificacao('Por favor, digite a descrição do ponto.');
+        } else if (!texto || !infoAcessibilidade) {
+            mostrarNotificacao('Por favor, preencha o texto informativo e as informações de acessibilidade.');
         }
     });
 
@@ -120,7 +124,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 instrucoes.style.display = 'block';
                 botaoSalvar.style.display = 'block';
                 botaoSalvar.textContent = "Atualizar";
-                dadosDosMarcadores = data.pontos.map(p => ({ x: p.posicao_x, y: p.posicao_y, texto: p.texto }));
+                
+                dadosDosMarcadores = data.pontos.map(p => ({ 
+                    x: p.posicao_x, 
+                    y: p.posicao_y, 
+                    texto: p.texto,
+                    info_acessibilidade: p.info_acessibilidade || ''
+                }));
+                
                 desenharMarcadores();
                 imagem.addEventListener('click', adicionarMarcador);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -178,11 +189,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function adicionarMarcador(evento) {
-        abrirModalPonto('', (texto) => {
+        abrirModalPonto('', '', (texto, infoAcessibilidade) => {
             const rect = containerInfografico.getBoundingClientRect();
             const x = ((evento.clientX - rect.left) / rect.width) * 100;
             const y = ((evento.clientY - rect.top) / rect.height) * 100;
-            dadosDosMarcadores.push({ x, y, texto });
+            
+            dadosDosMarcadores.push({ x, y, texto, info_acessibilidade: infoAcessibilidade });
+            
             desenharMarcadores();
             botaoSalvar.style.display = 'block';
         }, null);
@@ -191,8 +204,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function editarMarcador(index, ponto) {
         abrirModalPonto(
             ponto.texto, 
-            (novoTexto) => {
+            ponto.info_acessibilidade,
+            (novoTexto, novaInfoAcessibilidade) => {
                 dadosDosMarcadores[index].texto = novoTexto;
+                dadosDosMarcadores[index].info_acessibilidade = novaInfoAcessibilidade;
                 desenharMarcadores();
             },
             () => {

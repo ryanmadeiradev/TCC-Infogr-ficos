@@ -50,12 +50,33 @@
     </div>
 
     <div id="modalPonto" class="modal-sobreposicao" style="display: none;">
-        <div class="modal-conteudo">
-            <h4>Descreva este ponto</h4>
-            <p>Esta informação será lida pelo sistema para o aluno.</p>
-            <label for="textareaPonto" class="sr-only">Descrição do ponto de informação</label>
-'           <textarea id="textareaPonto" rows="5" placeholder="Digite aqui a audiodescrição ou conteúdo educativo..."></textarea>
-            <div class="modal-botoes">
+        <div class="modal-conteudo" style="max-width: 600px; text-align: left;">
+            <h4 style="margin-top: 0; text-align: center;">Descreva este ponto</h4>
+            
+            <div style="margin-bottom: 20px;">
+                <label for="textareaPonto" style="font-weight: bold; display: block; margin-bottom: 5px;">Texto Informativo</label>
+                <p style="font-size: 0.85em; color: #555; margin-top: 0; margin-bottom: 5px;">Esta informação será lida pelo sistema para o aluno.</p>
+                <textarea id="textareaPonto" rows="4" style="width: 100%; box-sizing: border-box;" placeholder="Digite aqui a audiodescrição ou conteúdo educativo..."></textarea>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label for="infoAcessibilidade" style="font-weight: bold; display: block; margin-bottom: 5px;">Informações de Acessibilidade</label>
+                <textarea id="infoAcessibilidade" rows="3" style="width: 100%; box-sizing: border-box;" placeholder="Ex: Você está no núcleo interno. Avance para... ou Retorne para..."></textarea>
+                <p style="color: red; font-size: 0.85em; margin-top: 5px; line-height: 1.4;">
+                    Esse texto será lido pelo sistema após o texto informativo acima. Esse texto ajuda os 
+                    estudantes a se orientarem no espaço dentro do infográfico. Informe o ponto atual onde 
+                    o usuário está e oriente-o sobre qual informação ele encontrará 
+                    se <strong>avançar</strong> (seta direita) ou <strong>retornar</strong> (seta esquerda). 
+                    Siga o exemplo abaixo:
+                    <br><br>
+
+                    <em>"Você está na Crosta Terrestre, a camada mais superficial. Avance para o próximo 
+                        ponto para explorar o Manto, que fica logo abaixo. Retorne para voltar ao início 
+                        do mapa."</em>
+                </p>
+            </div>
+
+            <div class="modal-botoes" style="text-align: center;">
                 <button id="btnCancelarPonto" class="btn-secundario">Cancelar</button>
                 <button id="btnSalvarPonto" class="btn-primario">Confirmar</button>
             </div>

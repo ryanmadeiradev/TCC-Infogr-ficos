@@ -32,12 +32,18 @@ db.serialize(() => {
         posicao_x REAL NOT NULL,
         posicao_y REAL NOT NULL,
         texto TEXT NOT NULL,
+        info_acessibilidade TEXT DEFAULT '',
         FOREIGN KEY (infografico_id) REFERENCES infograficos (id) ON DELETE CASCADE
     )`, (err) => {
         if (err) return console.error("Erro ao criar tabela 'pontos':", err.message);
         console.log("Tabela 'pontos' pronta.");
     });
 
+    db.run(`ALTER TABLE pontos ADD COLUMN info_acessibilidade TEXT DEFAULT ''`, (err) => {
+        if (!err) {
+            console.log("Nova coluna 'info_acessibilidade' adicionada ao banco existente com sucesso!");
+        }
+    });
 });
 
 db.close((err) => {

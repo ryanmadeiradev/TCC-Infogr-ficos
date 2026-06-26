@@ -4,7 +4,7 @@ function falarTexto(texto) {
 
     const utterance = new SpeechSynthesisUtterance(texto);
     utterance.lang = 'pt-BR';
-    utterance.rate = 1.0;
+    utterance.rate = 2.0; 
     window.speechSynthesis.speak(utterance);
 }
 
@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     marcador.dataset.x = ponto.posicao_x;
                     marcador.dataset.y = ponto.posicao_y;
                     marcador.dataset.texto = ponto.texto;
+                    marcador.dataset.infoAcessibilidade = ponto.info_acessibilidade || ''; 
                     marcador.dataset.idOriginal = indice;
                     marcador.setAttribute('tabindex', '0');
                     
@@ -48,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
 
                 setTimeout(() => {
-                    falarTexto(`Infográfico carregado: ${dados.infografico.titulo}. Use as setas laterais do teclado para navegar entre os pontos.`);
+                    falarTexto(`Infográfico carregado: ${dados.infografico.titulo}. Use as setas laterais para navegar e a tecla Control para pausar ou continuar a leitura.`);
                 }, 100);
 
                 iniciarNavegacaoPorTeclado();
@@ -103,6 +104,17 @@ function iniciarNavegacaoPorTeclado() {
 
     document.addEventListener('keydown', (evento) => {
         if (['Enter', 'Tab'].includes(evento.key)) return;
+
+        if (evento.key === 'Control') {
+            if (window.speechSynthesis.speaking) {
+                if (window.speechSynthesis.paused) {
+                    window.speechSynthesis.resume();
+                } else {
+                    window.speechSynthesis.pause();
+                }
+            }
+            return; 
+        }
 
         if (evento.key === 'Escape') {
             evento.preventDefault();
@@ -163,7 +175,14 @@ function iniciarNavegacaoPorTeclado() {
             marcadorAtual.classList.add('focused');
             marcadorAtual.focus();
             
-            const textoParaLer = marcadorAtual.dataset.texto;
+            const textoPrincipal = marcadorAtual.dataset.texto;
+            const infoAcess = marcadorAtual.dataset.infoAcessibilidade;
+            
+            let textoParaLer = textoPrincipal;
+            if (infoAcess && infoAcess.trim() !== "") {
+                textoParaLer += ". " + infoAcess;
+            }
+
             setTimeout(() => {
                 falarTexto(textoParaLer);
             }, 100);
