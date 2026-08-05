@@ -4,12 +4,22 @@ function falarTexto(texto) {
 
     const utterance = new SpeechSynthesisUtterance(texto);
     utterance.lang = 'pt-BR';
-    utterance.rate = 1.0;
+    const taxaFalaArmazenada = localStorage.getItem('taxaFala');
+    utterance.rate = taxaFalaArmazenada ? parseFloat(taxaFalaArmazenada) : 1.0;
     window.speechSynthesis.speak(utterance);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
     const containerGaleria = document.getElementById('containerGaleria');
+    const taxaFalaSelect = document.getElementById('taxaFalaSelectHeader');
+    
+    if (taxaFalaSelect) {
+        const stored = localStorage.getItem('taxaFala');
+        if (stored) taxaFalaSelect.value = stored;
+        taxaFalaSelect.addEventListener('change', () => {
+            localStorage.setItem('taxaFala', taxaFalaSelect.value);
+        });
+    }
 
     fetch('/api/infograficos')
         .then(response => response.json())
@@ -61,7 +71,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 btnDownload.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    window.location.href = `/api/exportar-independente/${info.id}`;
+                    const taxaFalaAtual = localStorage.getItem('taxaFala');
+                    let url = `/api/exportar-independente/${info.id}`;
+                    if (taxaFalaAtual) {
+                        url += `?taxaFala=${encodeURIComponent(taxaFalaAtual)}`;
+                    }
+                    window.location.href = url;
                 });
 
                 linkCard.appendChild(imagem);

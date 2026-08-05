@@ -1,11 +1,67 @@
-function falarTexto(texto) {
-    window.speechSynthesis.cancel();
-    if (!texto) return;
+let taxaFala = 1.0;
+const sinteseDeVoz = window.speechSynthesis;
+let textoCompleto = '';
+let indiceCaractereAtual = 0;
+let enunciadoAtual = null;
 
-    const utterance = new SpeechSynthesisUtterance(texto);
-    utterance.lang = 'pt-BR';
-    utterance.rate = 2.0; 
-    window.speechSynthesis.speak(utterance);
+function reproduzirAPartirDe(indice) {
+    if (!textoCompleto) return;
+    
+    indice = Math.max(0, Math.min(indice, textoCompleto.length - 1));
+    
+    if (enunciadoAtual) {
+        enunciadoAtual.foiCancelado = true;
+    }
+    
+    if (sinteseDeVoz.speaking || sinteseDeVoz.pending) {
+        sinteseDeVoz.cancel();
+    }
+
+    const textoParaFalar = textoCompleto.substring(indice);
+    const enunciado = new SpeechSynthesisUtterance(textoParaFalar);
+    enunciado.lang = 'pt-BR';
+    try { enunciado.rate = taxaFala; } catch(erro) { enunciado.rate = 1.0; }
+    
+    enunciado.onboundary = (evento) => {
+        if (enunciado.foiCancelado) return;
+        indiceCaractereAtual = indice + (evento.charIndex || 0);
+    };
+    
+    enunciado.onend = () => {
+        if (enunciado.foiCancelado) return;
+        enunciadoAtual = null;
+        indiceCaractereAtual = textoCompleto.length;
+    };
+    
+    enunciado.onerror = () => {
+        if (enunciado.foiCancelado) return;
+        enunciadoAtual = null;
+    };
+    
+    enunciadoAtual = enunciado;
+    
+    setTimeout(() => {
+        if (!enunciado.foiCancelado) {
+            sinteseDeVoz.speak(enunciado);
+        }
+    }, 50);
+}
+
+function iniciarFala(texto) {
+    if (!texto) return;
+    textoCompleto = texto;
+    indiceCaractereAtual = 0;
+    reproduzirAPartirDe(0);
+}
+
+function pularSegundos(segundos) {
+    if (!textoCompleto) return;
+    
+    const caracteresPorSeg = 15 * (taxaFala || 1.0); 
+    const deltaCaracteres = Math.round(segundos * caracteresPorSeg);
+    const novoIndice = Math.max(0, Math.min(textoCompleto.length - 1, indiceCaractereAtual + deltaCaracteres));
+    
+    reproduzirAPartirDe(novoIndice);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -16,6 +72,9 @@ document.addEventListener('DOMContentLoaded', function() {
     fetch(`/api/infografico/${idDoInfografico}`)
         .then(response => response.json())
         .then(dados => {
+            const taxaFalaArmazenada = localStorage.getItem('taxaFala');
+            if (taxaFalaArmazenada) taxaFala = parseFloat(taxaFalaArmazenada);
+            else taxaFala = parseFloat(dados.infografico.speech_rate) || 1.0;
             tituloInfografico.textContent = dados.infografico.titulo;
 
             const img = new Image();
@@ -49,7 +108,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
 
                 setTimeout(() => {
-                    falarTexto(`Infográfico carregado: ${dados.infografico.titulo}. Use as setas laterais para navegar e a tecla Control para pausar ou continuar a leitura.`);
+                    const descricao = (dados.infografico.descricao_geral || '').toString().trim();
+                    let textoDeAbertura = `Infográfico carregado: ${dados.infografico.titulo}. `;
+                    
+                    if (descricao) {
+                        textoDeAbertura += `${descricao}. `;
+                    }
+                    
+                    textoDeAbertura += `Use as setas laterais para navegar e a tecla Control para pausar ou continuar a leitura. Para avançar ou retroceder 5 segundos, segure a tecla Shift e use as setas direita ou esquerda. Para voltar à galeria, pressione a tecla Esc.`;
+                    
+                    iniciarFala(textoDeAbertura);
                 }, 100);
 
                 iniciarNavegacaoPorTeclado();
@@ -57,8 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             img.src = `/${dados.infografico.caminho_imagem.replace(/\\/g, '/')}`;
         })
-        .catch(error => {
-            console.error('Erro:', error);
+        .catch(() => {
             tituloInfografico.textContent = 'Erro ao carregar o infográfico.';
         });
 });
@@ -104,21 +171,26 @@ function iniciarNavegacaoPorTeclado() {
 
     document.addEventListener('keydown', (evento) => {
         if (['Enter', 'Tab'].includes(evento.key)) return;
+        
+        if (evento.shiftKey && (evento.key === 'ArrowLeft' || evento.key === 'ArrowRight')) {
+            evento.preventDefault();
+            if (evento.key === 'ArrowLeft') pularSegundos(-5);
+            else pularSegundos(5);
+            return;
+        }
 
-        if (evento.key === 'Control') {
-            if (window.speechSynthesis.speaking) {
-                if (window.speechSynthesis.paused) {
-                    window.speechSynthesis.resume();
-                } else {
-                    window.speechSynthesis.pause();
-                }
+        if (evento.key === 'Control' || evento.code === 'Space' || (evento.key && evento.key.toLowerCase() === 'p')) {
+            if (sinteseDeVoz.speaking) {
+                if (sinteseDeVoz.paused) sinteseDeVoz.resume();
+                else sinteseDeVoz.pause();
             }
-            return; 
+            evento.preventDefault();
+            return;
         }
 
         if (evento.key === 'Escape') {
             evento.preventDefault();
-            falarTexto("Voltando para a galeria.");
+            iniciarFala("Voltando para a galeria.");
             setTimeout(() => {
                 const btnVoltar = document.getElementById('linkVoltar');
                 if(btnVoltar) btnVoltar.click();
@@ -133,7 +205,7 @@ function iniciarNavegacaoPorTeclado() {
 
         if (evento.key === 'ArrowRight') {
             if (todosOsMarcadores.length === 0) {
-                falarTexto("Este infográfico não possui pontos mapeados.");
+                iniciarFala("Este infográfico não possui pontos mapeados.");
                 return;
             }
 
@@ -145,13 +217,13 @@ function iniciarNavegacaoPorTeclado() {
                 }
                 indiceDoMarcadorSelecionado = proximoIndice;
             } else {
-                falarTexto("Fim do infográfico.");
+                iniciarFala("Fim do infográfico.");
                 return;
             }
         } 
         else if (evento.key === 'ArrowLeft') {
             if (todosOsMarcadores.length === 0) {
-                falarTexto("Início do infográfico. Não há pontos cadastrados.");
+                iniciarFala("Início do infográfico. Não há pontos cadastrados.");
                 return;
             }
 
@@ -161,7 +233,7 @@ function iniciarNavegacaoPorTeclado() {
 
                 indiceDoMarcadorSelecionado = historicoCaminho.pop();
             } else {
-                falarTexto("Início do infográfico.");
+                iniciarFala("Início do infográfico.");
                 return;
             }
         }
@@ -177,14 +249,20 @@ function iniciarNavegacaoPorTeclado() {
             
             const textoPrincipal = marcadorAtual.dataset.texto;
             const infoAcess = marcadorAtual.dataset.infoAcessibilidade;
+
+            let textoParaLer = '';
             
-            let textoParaLer = textoPrincipal;
+            if (textoPrincipal && textoPrincipal.trim() !== "") {
+                textoParaLer += textoPrincipal.trim();
+            }
+            
             if (infoAcess && infoAcess.trim() !== "") {
-                textoParaLer += ". " + infoAcess;
+                if (textoParaLer !== "") textoParaLer += '. ';
+                textoParaLer += infoAcess.trim();
             }
 
             setTimeout(() => {
-                falarTexto(textoParaLer);
+                iniciarFala(textoParaLer);
             }, 100);
         }
     });

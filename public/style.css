@@ -258,10 +258,12 @@ body {
 
 .btn-secundario {
     background-color: #eee;
+    color: #333;
+    font-weight: bold;
     padding: 12px 25px;
     border-radius: 8px;
     cursor: pointer;
-    border: none;
+    border: 1px solid #ccc;
 }
 
 .btn-perigo {

@@ -8,9 +8,16 @@
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <div class="faixa-topo">
-        <span></span>
-        <a href="/login" class="link-professor">Área do Professor</a>
+    <div class="faixa-topo" style="display:flex; align-items:center; justify-content:flex-end; gap:10px; padding:10px 20px;">
+        <a href="/login" class="link-professor" style="margin-right:auto;">Área do Professor</a>
+        <label for="taxaFalaSelectHeader" style="color:#ffffff; margin:0;">Velocidade:</label>
+        <select id="taxaFalaSelectHeader" aria-label="Velocidade da fala" style="padding:6px; border-radius:4px;">
+            <option value="0.6">0.6x</option>
+            <option value="1">1x</option>
+            <option value="1.5">1.5x</option>
+            <option value="2">2x</option>
+            <option value="2.5">2.5x</option>
+        </select>
     </div>
 
     <header class="banner-audible">

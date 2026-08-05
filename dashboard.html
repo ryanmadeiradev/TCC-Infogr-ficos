@@ -8,18 +8,28 @@
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <a href="/logout" style="position: absolute; top: 10px; right: 20px;">Sair</a>
+
+    <div style="position: absolute; top: 15px; right: 25px; display: flex; gap: 15px;">
+        <a href="/galeria" style="color: #2E7D32; font-weight: bold; text-decoration: none; padding: 5px 10px; border-radius: 5px; background: rgba(255,255,255,0.7);">Ver Galeria</a>
+        <a href="/logout" style="color: #d32f2f; font-weight: bold; text-decoration: none; padding: 5px 10px; border-radius: 5px; background: rgba(255,255,255,0.7);">Sair</a>
+    </div>
 
     <div class="container-principal">
         <h1>Crie seu Infográfico Interativo</h1>
         
         <div class="form-group" style="text-align: left; max-width: 500px; margin: 20px auto;">
             <label for="tituloInfografico">1. Dê um nome para o infográfico:</label>
-            <input type="text" id="tituloInfografico" class="form-input" placeholder="Ex: Fases da Lua">
+            <input type="text" id="tituloInfografico" class="form-input" placeholder="Ex: Camadas da Terra">
+        </div>
+
+        <div class="form-group" style="text-align: left; max-width: 500px; margin: 10px auto;">
+            <label for="descricaoGeral" style="font-weight: normal; display:block; margin-bottom:6px; color: #000;">2. Descrição geral do infográfico</label>
+            <textarea id="descricaoGeral" rows="4" class="form-input" style="min-height:96px;" placeholder="Ex: Infográfico estruturado em quatro seções principais detalhando as camadas da Terra, indicando a localização da Crosta, Manto e Núcleos, com foco em orientar o estudante sobre a estrutura interna do planeta."></textarea>
+            <p style="font-size:0.85em; color:#555; margin-top:6px;">Esta descrição será lida ao abrir o visualizador, seguida das instruções de navegação.</p>
         </div>
 
         <div class="form-group" style="text-align: left; max-width: 500px; margin: 20px auto;">
-            <label for="carregadorImagem">2. Escolha uma imagem:</label>
+            <label for="carregadorImagem">3. Escolha uma imagem:</label>
             <input type="file" id="carregadorImagem" accept="image/png, image/jpeg">
     
             <p style="color: #000000; font-size: 0.85em; margin-top: 5px; font-weight: bold;">
@@ -31,7 +41,7 @@
             </p>
         </div>
         
-        <h2 id="instrucoes" style="display: none;">3. Clique na imagem para adicionar os pontos</h2>
+        <h2 id="instrucoes" style="display: none;">4. Clique na imagem para adicionar os pontos</h2>
 
         <div id="containerInfografico" class="container-infografico"></div>
 
@@ -76,12 +86,11 @@
                 </p>
             </div>
 
-            <div class="modal-botoes" style="text-align: center;">
-                <button id="btnCancelarPonto" class="btn-secundario">Cancelar</button>
-                <button id="btnSalvarPonto" class="btn-primario">Confirmar</button>
-            </div>
-
-            <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+            <div class="modal-botoes" style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+                <div style="display: flex; gap: 10px; width: 100%;">
+                    <button id="btnCancelarPonto" class="btn-secundario" style="flex: 1;">Cancelar</button>
+                    <button id="btnSalvarPonto" class="btn-primario" style="flex: 1;">Confirmar</button>
+                </div>
                 <button id="btnExcluirPonto" class="btn-perigo" style="width: 100%; display: none;">
                     Excluir este Ponto
                 </button>

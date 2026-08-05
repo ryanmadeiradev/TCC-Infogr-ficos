@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const tituloInfograficoInput = document.getElementById('tituloInfografico');
+    const descricaoGeralInput = document.getElementById('descricaoGeral');
     const carregadorImagem = document.getElementById('carregadorImagem');
     const containerInfografico = document.getElementById('containerInfografico');
     const instrucoes = document.getElementById('instrucoes');
@@ -117,6 +118,8 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 editandoId = id;
                 tituloInfograficoInput.value = data.infografico.titulo;
+                descricaoGeralInput.value = data.infografico.descricao_geral || '';
+                
                 containerInfografico.innerHTML = '';
                 const imagem = document.createElement('img');
                 imagem.src = `/${data.infografico.caminho_imagem.replace(/\\/g, '/')}`;
@@ -238,6 +241,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const formData = new FormData();
         formData.append('titulo', titulo);
+        formData.append('descricao_geral', descricaoGeralInput ? descricaoGeralInput.value : '');
+        formData.append('speech_rate', '1');
         formData.append('pontos', JSON.stringify(dadosDosMarcadores));
         if (arquivoDeImagem) formData.append('imagemInfografico', arquivoDeImagem);
 
@@ -256,7 +261,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function resetarFormulario() {
-        tituloInfograficoInput.value = '';
+        tituloInfograficoInput.value = '';        
+        if (descricaoGeralInput) descricaoGeralInput.value = '';
         containerInfografico.innerHTML = '';
         dadosDosMarcadores = [];
         arquivoDeImagem = null;
