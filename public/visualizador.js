@@ -77,6 +77,10 @@ document.addEventListener('DOMContentLoaded', function() {
             else taxaFala = parseFloat(dados.infografico.speech_rate) || 1.0;
             tituloInfografico.textContent = dados.infografico.titulo;
 
+            const descGeral = (dados.infografico.descricao_geral || '').toString().trim();
+            visualizador.setAttribute('role', 'img');
+            visualizador.setAttribute('aria-label', `Infográfico: ${dados.infografico.titulo}. ${descGeral}`);
+
             const img = new Image();
             img.onload = function() {
                 const larguraOriginal = this.naturalWidth;
@@ -103,6 +107,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     marcador.dataset.infoAcessibilidade = ponto.info_acessibilidade || ''; 
                     marcador.dataset.idOriginal = indice;
                     marcador.setAttribute('tabindex', '0');
+                    
+                    marcador.setAttribute('role', 'button');
+                    const textoDescricao = `${ponto.texto || ''}. ${ponto.info_acessibilidade || ''}`.trim();
+                    marcador.setAttribute('aria-label', `Ponto ${indice + 1}: ${textoDescricao}`);
                     
                     visualizador.appendChild(marcador);
                 });
